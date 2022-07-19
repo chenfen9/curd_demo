@@ -11,6 +11,7 @@ const {newsList} = Mock.mock({
             }
         ]     
 })
+var arr = newsList
 
 // 根据url获取query参数
 const getQuery = (url,name) => {
@@ -31,7 +32,7 @@ const getQuery = (url,name) => {
 // 定义获取参数数据接口
 Mock.mock(/\/api\/get\/news/,'get',(options)=>{
     if(!localStorage.getItem('newsList')){
-        localStorage.setItem('newsList',JSON.stringify(newsList)) 
+        localStorage.setItem('newsList',JSON.stringify(arr)) 
         let newsArr = JSON.parse(localStorage.getItem('newsList'))
         const pageIndex = getQuery(options.url,'pageIndex');
         const pageSize = getQuery(options.url,'pageSize')
@@ -55,7 +56,7 @@ Mock.mock(/\/api\/get\/news/,'get',(options)=>{
             status:200,
             message:'获取新闻列表成功',
             list:list,
-            total:JSON.parse(localStorage.getItem('newsList')).length
+            total:newsArr.length
         }
     }
    
@@ -72,7 +73,7 @@ Mock.mock('/api/add/news','post',(options)=>{
     "img_url":"@image('80x80','#AFEEEE','#2F4F4F','png','暂无图片')",
     "add_time":"@date(yyyy-MM-dd hh:mm:ss)"
     })
-   newsList.push(data)
+   arr.push(data)
    localStorage.setItem('newsList',JSON.stringify([...newsList]))
    return{
        status:200,
@@ -86,8 +87,8 @@ Mock.mock('/api/delete/news','post',(options)=>{
    console.log('options',options);
    let body = JSON.parse(options.body);
    let index = newsList.findIndex(item=>item.id == body.id)
-   newsList.splice(index,1)
-   localStorage.setItem('newsList',JSON.stringify(newsList))
+   arr.splice(index,1)
+   localStorage.setItem('newsList',JSON.stringify(arr))
    return{
        status:200,
        message:'删除新闻成功'
@@ -120,12 +121,12 @@ Mock.mock('/api/edit/news','post',(options)=>{
 Mock.mock('/api/search/news','post',(options)=>{
     console.log('options',options)
     let body = JSON.parse(options.body).inputContent;
-    let newArr = newsList.filter(item=>{
+    let newArr = arr.filter(item=>{
         return item.title.indexOf(body) > -1
     })
     localStorage.setItem('newsList',JSON.stringify(newArr))
     if(body.trim() === ''){
-        newArr = newsList
+        newArr = arr
         localStorage.setItem('newsList',JSON.stringify(newArr))
     }
     return{
