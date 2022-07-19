@@ -121,18 +121,18 @@ Mock.mock('/api/search/news','post',(options)=>{
     console.log('options',options)
     let body = JSON.parse(options.body).inputContent;
     let newArr = newsList.filter(item=>{
-        if((item.title.indexOf(body) != -1 && body !== '') || (item.content.indexOf(body) != -1 && body !== '')){
-            return item
-        };
-        if(body === ''){
-            return item
-        }
+        return item.title.indexOf(body) > -1
     })
+    localStorage.setItem('newsList',JSON.stringify(newArr))
+    if(body.trim() === ''){
+        newArr = newsList
+        localStorage.setItem('newsList',JSON.stringify(newArr))
+    }
     return{
         status:200,
         message:'搜索成功',
-        list:newArr,
-        total:newArr.length
+        // list:newArr,
+        // total:newArr.length
 
     }
 })

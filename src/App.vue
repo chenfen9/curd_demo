@@ -202,7 +202,7 @@ export default {
     // 搜索关键字
     searchNews(inputContent){
        axios.post('/api/search/news',{inputContent}).then(res=>{
-         console.log('res',res)
+          this.getNewsList()
        })
     }
   }
