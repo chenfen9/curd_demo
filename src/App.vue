@@ -1,14 +1,18 @@
 <template>
   <div>
-  <el-card >
-      <h1>新闻列表管理</h1>
-      <el-input v-model="title" size="small" style="width:200px;margin-right:20px" 
-     placeholder="请输入标题"></el-input>
-      <el-input v-model="content" size="small" style="width:200px;margin-right:20px;" placeholder="请输入内容"></el-input>
-      <el-button type="primary" size="small" style="width:80px" @click="add">添加</el-button>
+  <el-card>
+      <div class="add_news">
+         <h1>新闻列表管理</h1>
+          <el-input v-model="title" size="small" style="width:200px;margin-right:20px" placeholder="请输入标题"></el-input>
+          <el-input v-model="content" size="small" style="width:200px;margin-right:20px;" placeholder="请输入内容"></el-input>
+          <el-button type="primary" size="small" style="width:80px" @click="add">添加</el-button>
+      </div>
+      <div class="search" >
+           <el-input placeholder="请输入内容" v-model="inputContent" clearable @change="searchNews(inputContent)"> <i slot="prefix" class="el-input__icon el-icon-search"></i></el-input>
+      </div>
   </el-card>
   <el-card >
-    <el-table :data="newsList" border style="width: 100%">
+    <el-table :data="newsList" border style="width: 100%;margin-bottom:20px;">
         <el-table-column width="110px" align="center"  prop="prop" label="图片">
             <template slot-scope="{row,$index}">
               <img :src="row.img_url"/>
@@ -65,8 +69,9 @@ export default {
         title:'',
         content:'',
         id:''
-
-      }
+      },
+      // 搜索框的内容
+      inputContent:''
     };
   },
   created(){
@@ -82,6 +87,7 @@ export default {
             type:'warning',
             message:'标题或内容不能为空'
       })
+      return null
       }
       // post请求添加数据
       axios.post('/api/add/news',{
@@ -114,7 +120,8 @@ export default {
       this.pageIndex++;
       let pageLength = Math.ceil(this.total/this.pageSize)
       if(this.pageIndex > pageLength){
-        this.pageIndex = pageLength + 1
+        this.pageIndex = pageLength
+        this.$message("没数据了哦~")
       }
       this.getNewsList()
     },
@@ -130,9 +137,26 @@ export default {
 
     // 根据id删除新闻数据
     deleteNew(id){
+       this.$confirm('确认删除该新闻吗?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
       axios.post('/api/delete/news',{id}).then(res=>{
        this.getNewsList()
       })
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });          
+        });
+
+      
     },
 
     // 点击编辑按钮展示新闻详情
@@ -149,15 +173,46 @@ export default {
 
     // 点击确认按钮修改内容
     confirmToEdit(){
-       this.dialogFormVisible = false;
-       axios.post('/api/edit/news',this.newsItem).then(res=>{
+        this.$confirm('确认修改吗?', '修改框', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+        }).then(() => {
+        
+        // 判断编辑框内内容是否为空
+       if(this.newsItem.title === '' || this.newsItem.content === ''){
+         this.$message({
+           type:'warning',
+           message:'标题或内容不能为空'
+         })
+       }else{
+          this.dialogFormVisible = false;
+          axios.post('/api/edit/news',this.newsItem).then(res=>{
+          this.getNewsList()
+       })
+       }
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消修改'
+          });          
+        });    
+    },
+
+    // 搜索关键字
+    searchNews(inputContent){
+       axios.post('/api/search/news',{inputContent}).then(res=>{
          console.log('res',res)
-         this.getNewsList()
        })
     }
   }
 };
 </script>
 
-<style>
+<style lang="less">
+.search{
+  width: 300px;
+  margin-left: 550px;
+  transform:translateY(-90px);
+}
 </style>
