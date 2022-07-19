@@ -62,7 +62,7 @@ export default {
       content: "",
       newsList: [],
       pageIndex:1,
-      pageSize:10,
+      pageSize:3,
       total:0,
       dialogFormVisible:false,
       newsItem:{
@@ -75,6 +75,7 @@ export default {
     };
   },
   created(){
+    localStorage.removeItem('newsList')
      this.getNewsList();
   },
   methods:{
@@ -201,6 +202,7 @@ export default {
 
     // 搜索关键字
     searchNews(inputContent){
+      this.pageIndex = 1
        axios.post('/api/search/news',{inputContent}).then(res=>{
           this.getNewsList()
        })

@@ -1,7 +1,7 @@
 import Mock from 'mockjs'
 
 const {newsList} = Mock.mock({
-    "newsList|75":[
+    "newsList|10":[
             {
                 "id":"@increment(1)",
                 "title":"@ctitle()",
@@ -11,7 +11,9 @@ const {newsList} = Mock.mock({
             }
         ]     
 })
-var arr = newsList
+console.log('newsList',newsList)
+var arr = newsList;
+localStorage.setItem('newsList',JSON.stringify(arr))
 
 // 根据url获取query参数
 const getQuery = (url,name) => {
@@ -31,7 +33,7 @@ const getQuery = (url,name) => {
 
 // 定义获取参数数据接口
 Mock.mock(/\/api\/get\/news/,'get',(options)=>{
-    if(!localStorage.getItem('newsList')){
+    if(arr.length<=0){
         localStorage.setItem('newsList',JSON.stringify(arr)) 
         let newsArr = JSON.parse(localStorage.getItem('newsList'))
         const pageIndex = getQuery(options.url,'pageIndex');
@@ -121,11 +123,12 @@ Mock.mock('/api/edit/news','post',(options)=>{
 Mock.mock('/api/search/news','post',(options)=>{
     console.log('options',options)
     let body = JSON.parse(options.body).inputContent;
+    console.log(arr,body)
     let newArr = arr.filter(item=>{
-        return item.title.indexOf(body) > -1
+        return item.title.indexOf(body) != -1
     })
     localStorage.setItem('newsList',JSON.stringify(newArr))
-    if(body.trim() === ''){
+    if(body.trim() == ''){
         newArr = arr
         localStorage.setItem('newsList',JSON.stringify(newArr))
     }
