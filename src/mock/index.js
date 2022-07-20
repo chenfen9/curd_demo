@@ -16,11 +16,12 @@ const {newsList} = Mock.mock({
 // 首先创建一个arr，若本地缓存有newsList，则直接将值赋值给arr；若本地没缓存，则将随机生成的数据赋值给arr并创建缓存
 let arr = [];
 let new_list = JSON.parse(localStorage.getItem('newsList'));
-if( new_list instanceof Array && new_list.length > 4){
+if( new_list instanceof Array && new_list.length > 0){
     arr = new_list
 }else{
      arr = newsList;
      localStorage.setItem('newsList',JSON.stringify(arr))
+     localStorage.setItem('replaceList',JSON.stringify(arr))
 }
 
 // 根据url获取query参数
@@ -43,17 +44,23 @@ const getQuery = (url,name) => {
 Mock.mock(/\/api\/get\/news/,'get',(options)=>{
     // 起初这里进行了本地存储的判断，并不理想，数据经常改变，是因为始终都是操作的原数组，若本地存储为空，则会走创建缓存的逻辑
         let newsArr = JSON.parse(localStorage.getItem('newsList'))
+        let replaceArr = JSON.parse(localStorage.getItem('replaceList'))
+        if(newsArr.length>replaceArr.length){
+            newsArr = replaceArr
+        }
         const pageIndex = getQuery(options.url,'pageIndex');
         const pageSize = getQuery(options.url,'pageSize')
         const start = (pageIndex - 1)*pageSize;
         const end = pageIndex * pageSize;
-        const list = newsArr.slice(start,end)  
+        const list = newsArr.slice(start,end)
+        localStorage.setItem('replaceList',JSON.stringify( JSON.parse(localStorage.getItem('newsList'))))
         return{
             status:200,
             message:'获取新闻列表成功',
             list:list,
             total:newsArr.length
         }
+        
 })
 
 // 定义post请求添加数据接口
@@ -69,6 +76,7 @@ Mock.mock('/api/add/news','post',(options)=>{
     })
    arr.unshift(data)
    localStorage.setItem('newsList',JSON.stringify([...arr]))
+   localStorage.setItem('replaceList',JSON.stringify([...arr]))
    return{
        status:200,
        message:'添加数据成功'
@@ -83,6 +91,7 @@ Mock.mock('/api/delete/news','post',(options)=>{
    let index = newsArr.findIndex(item=>item.id === body.id)
    newsArr.splice(index,1)
    localStorage.setItem('newsList',JSON.stringify(newsArr))
+   localStorage.setItem('replaceList',JSON.stringify(newsArr))
    arr = newsArr
    return{
        status:200,
@@ -105,6 +114,7 @@ Mock.mock('/api/edit/news','post',(options)=>{
         }
     });
     localStorage.setItem('newsList',JSON.stringify(newsArr))
+    localStorage.setItem('replaceList',JSON.stringify(newsArr))
     arr = newsArr
     return{
         status:200,
@@ -121,7 +131,7 @@ Mock.mock('/api/search/news','post',(options)=>{
     let newArr = arr.filter(item=>{
         return item.title.indexOf(body) != -1
     })
-    localStorage.setItem('newsList',JSON.stringify(newArr))
+    localStorage.setItem('replaceList',JSON.stringify(newArr))
     if(body.trim() == ''){
         newArr = arr
         localStorage.setItem('newsList',JSON.stringify(newArr))

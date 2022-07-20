@@ -91,6 +91,7 @@ export default {
       })
       return null
       }
+      this.pageIndex = 1
       // post请求添加数据
       axios.post('/api/add/news',{
         title:this.title,
