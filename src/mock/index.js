@@ -16,7 +16,7 @@ const {newsList} = Mock.mock({
 // 首先创建一个arr，若本地缓存有newsList，则直接将值赋值给arr；若本地没缓存，则将随机生成的数据赋值给arr并创建缓存
 let arr = [];
 let new_list = JSON.parse(localStorage.getItem('newsList'));
-if( new_list instanceof Array && new_list.length > 8){
+if( new_list instanceof Array && new_list.length > 4){
     arr = new_list
 }else{
      arr = newsList;
@@ -61,7 +61,7 @@ Mock.mock('/api/add/news','post',(options)=>{
    console.log(options);
    let body = JSON.parse(options.body)
    let data = Mock.mock({
-    "id":"@increment(1)",
+    "id":new Date(),
     "title":body.title,
     "content":body.content,
     "img_url":"@image('80x80','#AFEEEE','#2F4F4F','png','暂无图片')",
@@ -78,11 +78,12 @@ Mock.mock('/api/add/news','post',(options)=>{
 
 // 根据id定义删除新闻列表的接口
 Mock.mock('/api/delete/news','post',(options)=>{
-   console.log('options',options);
    let body = JSON.parse(options.body);
-   let index = newsList.findIndex(item=>item.id == body.id)
-   arr.splice(index,1)
-   localStorage.setItem('newsList',JSON.stringify(arr))
+   let newsArr = JSON.parse(localStorage.getItem('newsList'))
+   let index = newsArr.findIndex(item=>item.id === body.id)
+   newsArr.splice(index,1)
+   localStorage.setItem('newsList',JSON.stringify(newsArr))
+   arr = newsArr
    return{
        status:200,
        message:'删除新闻成功'
@@ -104,6 +105,7 @@ Mock.mock('/api/edit/news','post',(options)=>{
         }
     });
     localStorage.setItem('newsList',JSON.stringify(newsArr))
+    arr = newsArr
     return{
         status:200,
         message:"编辑新闻成功"
@@ -126,9 +128,7 @@ Mock.mock('/api/search/news','post',(options)=>{
     }
     return{
         status:200,
-        message:'搜索成功',
-        // list:newArr,
-        // total:newArr.length
+        message:'搜索成功'
 
     }
 })

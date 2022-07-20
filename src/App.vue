@@ -111,7 +111,6 @@ export default {
           pageSize:this.pageSize
         }
       }).then(res=>{
-        console.log(res)
         this.newsList = res.data.list
         this.total = res.data.total
       })
@@ -144,6 +143,7 @@ export default {
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
+          console.log('id',id)
       axios.post('/api/delete/news',{id}).then(res=>{
        this.getNewsList()
       })
