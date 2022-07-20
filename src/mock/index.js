@@ -67,8 +67,8 @@ Mock.mock('/api/add/news','post',(options)=>{
     "img_url":"@image('80x80','#AFEEEE','#2F4F4F','png','暂无图片')",
     "add_time":"@date(yyyy-MM-dd hh:mm:ss)"
     })
-   arr.push(data)
-   localStorage.setItem('newsList',JSON.stringify([...newsList]))
+   arr.unshift(data)
+   localStorage.setItem('newsList',JSON.stringify([...arr]))
    return{
        status:200,
        message:'添加数据成功'
