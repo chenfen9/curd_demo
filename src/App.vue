@@ -1,7 +1,8 @@
 <template>
-  <div>
+  <div class="cardControl">
   <el-card>
-      <div class="add_news">
+     
+        <div class="add_news">
          <h1>新闻列表管理</h1>
           <el-input v-model="title" size="small" style="width:200px;margin-right:20px" placeholder="请输入标题"></el-input>
           <el-input v-model="content" size="small" style="width:200px;margin-right:20px;" placeholder="请输入内容"></el-input>
@@ -10,6 +11,7 @@
       <div class="search" >
            <el-input placeholder="请输入内容" v-model="inputContent" clearable @change="searchNews(inputContent)"> <i slot="prefix" class="el-input__icon el-icon-search"></i></el-input>
       </div>
+ 
   </el-card>
   <el-card >
     <el-table :data="newsList" border style="width: 100%;margin-bottom:20px;">
@@ -75,7 +77,6 @@ export default {
     };
   },
   created(){
-    localStorage.removeItem('newsList')
      this.getNewsList();
   },
   methods:{
@@ -212,9 +213,23 @@ export default {
 </script>
 
 <style lang="less">
-.search{
-  width: 300px;
-  margin-left: 550px;
-  transform:translateY(-90px);
+// .inputControl{
+//   display: flex;
+//   justify-content: space-between;
+
+//     .search{
+//       width: 300px;
+//       align-self: center;
+//     }
+// }
+
+
+.cardControl>.el-card:nth-of-type(1)>.el-card__body{
+    display: flex;
+    justify-content: space-between;
+    .search{
+      width: 300px;
+      align-self: center;
+    }
 }
 </style>

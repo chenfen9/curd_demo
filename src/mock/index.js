@@ -11,9 +11,17 @@ const {newsList} = Mock.mock({
             }
         ]     
 })
-console.log('newsList',newsList)
-var arr = newsList;
-localStorage.setItem('newsList',JSON.stringify(arr))
+
+// 在这里进行if判断的目的是只在创建的时候执行一次，使得后面刷新的时候，数据也不会因为本地缓存里面没有数据，重新生成随机数据
+// 首先创建一个arr，若本地缓存有newsList，则直接将值赋值给arr；若本地没缓存，则将随机生成的数据赋值给arr并创建缓存
+let arr = [];
+let new_list = JSON.parse(localStorage.getItem('newsList'));
+if( new_list instanceof Array && new_list.length > 8){
+    arr = new_list
+}else{
+     arr = newsList;
+     localStorage.setItem('newsList',JSON.stringify(arr))
+}
 
 // 根据url获取query参数
 const getQuery = (url,name) => {
@@ -33,21 +41,7 @@ const getQuery = (url,name) => {
 
 // 定义获取参数数据接口
 Mock.mock(/\/api\/get\/news/,'get',(options)=>{
-    if(arr.length<=0){
-        localStorage.setItem('newsList',JSON.stringify(arr)) 
-        let newsArr = JSON.parse(localStorage.getItem('newsList'))
-        const pageIndex = getQuery(options.url,'pageIndex');
-        const pageSize = getQuery(options.url,'pageSize')
-        const start = (pageIndex - 1)*pageSize;
-        const end = pageIndex * pageSize;
-        const list = newsArr.slice(start,end)  
-        return{
-            status:200,
-            message:'获取新闻列表成功',
-            list:list,
-            total:JSON.parse(localStorage.getItem('newsList')).length
-        }
-    }else{
+    // 起初这里进行了本地存储的判断，并不理想，数据经常改变，是因为始终都是操作的原数组，若本地存储为空，则会走创建缓存的逻辑
         let newsArr = JSON.parse(localStorage.getItem('newsList'))
         const pageIndex = getQuery(options.url,'pageIndex');
         const pageSize = getQuery(options.url,'pageSize')
@@ -60,8 +54,6 @@ Mock.mock(/\/api\/get\/news/,'get',(options)=>{
             list:list,
             total:newsArr.length
         }
-    }
-   
 })
 
 // 定义post请求添加数据接口
